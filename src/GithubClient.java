@@ -17,16 +17,24 @@ public class GithubClient {
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(2, TimeUnit.SECONDS)
                 .build();
+
         Request request = new Request.Builder()
-                .url("https://api.github.com/users/" + username + "/repos")
+                .url("https://github.com/" + username)
                 .build();
         Response response = client.newCall(request).execute();
-        if (!response.isSuccessful()) {
+        if (!response.isSuccessful() || response.code() == 404) {
             view.display("STATUS: " + response.code());
             view.display("Could not find user");
             return null;
         }
+        view.display("Found Github user. Grabbing repositories...");
+        request = new Request.Builder()
+                .url("https://api.github.com/users/" + username + "/repos")
+                .build();
+        response.close();
+        response = client.newCall(request).execute();
         String jsonresponse = response.body().string();
+
         response.close();
         client.dispatcher().executorService().shutdown();
         return new JSONArray(jsonresponse);
@@ -52,7 +60,9 @@ public class GithubClient {
                 repoList.add(repo);
             }
         }
+        //Sorts in ascending order and then reverses list
         Collections.sort (repoList);
+        Collections.reverse(repoList);
         return new ArrayDeque<>(repoList);
     }
 
