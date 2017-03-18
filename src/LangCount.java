@@ -1,9 +1,9 @@
-public class Repository implements Comparable<Repository> {
+public class LangCount implements Comparable<LangCount> {
 
     private String language;
     private int count;
 
-    public Repository (String language) {
+    public LangCount(String language) {
         this.language = language;
     }
 
@@ -20,7 +20,7 @@ public class Repository implements Comparable<Repository> {
     }
 
     @Override
-    public int compareTo(Repository o) {
+    public int compareTo(LangCount o) {
         if (count == o.getCount()) {
             return 0;
         } else if (count > o.getCount()) {
@@ -32,9 +32,9 @@ public class Repository implements Comparable<Repository> {
 
     @Override
     public boolean equals (Object o) {
-        if (!(o instanceof Repository)) {
+        if (!(o instanceof LangCount)) {
             return false;
         }
-        return language.equals(((Repository) o).getLanguage());
+        return language.equals(((LangCount) o).getLanguage());
     }
 }

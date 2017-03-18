@@ -2,10 +2,12 @@ import Input.StdIn;
 import Input.Input;
 import Output.StdOutput;
 import Output.View;
-import org.json.*;
+import org.kohsuke.github.GHPerson;
+import org.kohsuke.github.GHRepository;
 
 import java.io.IOException;
 import java.util.Deque;
+import java.util.Map;
 
 public class Main {
 
@@ -14,27 +16,49 @@ public class Main {
         View view = new StdOutput();
         Input input = new StdIn(view);
 
-        JSONArray repositories = null;
+        Map<String, GHRepository> repositories = null;
+        boolean repeat = true;
+        while (repeat) {
+            do {
+                //Ask for username
+                view.display("Please enter a Github username:");
+                String username = input.readLine();
 
-        do {
-            //Ask for username
-            view.display("Please enter a Github username:");
-            String username = input.readLine();
-
-            //Grab user repositories
-            view.display("Searching Github for user");
-            repositories = GithubClient.grabUserRepos(username, view);
-        } while (repositories == null);
-
-        Deque<Repository> languages = GithubClient.tabulateLanguages
-                (repositories);
-        printMostUsedLanguage(languages, view);
+                //Grab user repositories
+                view.display("Searching Github for user");
+                GHPerson user = GithubClient.findUser(username, view);
+                if (user != null) {
+                    view.display("Found Github user. Grabbing repositories...");
+                    repositories = GithubClient.grabUserRepos(user, view);
+                }
+            } while (repositories == null);
+            Deque<LangCount> languages = GithubClient.tabulateLanguages
+                    (repositories);
+            printMostUsedLanguage(languages, view);
+            repeat = askForRepeat(view, input);
+        }
     }
 
+    public static boolean askForRepeat(View view, Input input) {
+        view.display("Try again? [y/n]");
+        String answer = null;
+        while (answer == null) {
+            answer = input.readLine();
+            if (answer.startsWith("y") || answer.startsWith("Y")) {
+                return true;
+            } else if (answer.startsWith("n") || answer.startsWith("N")) {
+                return false;
+            } else {
+                view.display("Please enter y or n");
+                answer = null;
+            }
+        }
+        return false;
+    }
     /*Prints out programming languages that have the highest number of git
       repositories
      */
-    public static void printMostUsedLanguage (Deque<Repository> repos,
+    public static void printMostUsedLanguage (Deque<LangCount> repos,
                                               View view) {
         int maxCount = 0;
         if (repos.size() == 0) {
@@ -43,13 +67,14 @@ public class Main {
             return;
         }
 
-        Repository currentRepo = repos.poll();
+        LangCount currentRepo = repos.poll();
         maxCount = currentRepo.getCount();
         view.display("Based on the git repositories this user has created " +
                 "I think this user's favourite programming language(s) are:");
 
         while (currentRepo.getCount() == maxCount) {
-            view.display(currentRepo.getLanguage());
+            view.display(String.format("%s (%d)", currentRepo.getLanguage(),
+                    currentRepo.getCount()));
             if (repos.size() == 0) {
                 break;
             }

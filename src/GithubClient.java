@@ -1,58 +1,46 @@
 import Output.View;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.kohsuke.github.GHPerson;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class GithubClient {
 
-    /* Uses Github API to return a JSON array of the user's git repositories */
-    public static JSONArray grabUserRepos (String username, View view) throws
-            IOException {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(2, TimeUnit.SECONDS)
-                .build();
+    public static GHPerson findUser(String username, View view) throws IOException {
 
-        Request request = new Request.Builder()
-                .url("https://github.com/" + username)
-                .build();
-        Response response = client.newCall(request).execute();
-        if (!response.isSuccessful() || response.code() == 404) {
-            view.display("STATUS: " + response.code());
+        GitHub github = GitHub.connectAnonymously();
+        GHPerson user;
+        try {
+            user = github.getUser(username);
+        } catch (FileNotFoundException e) {
             view.display("Could not find user");
             return null;
         }
-        view.display("Found Github user. Grabbing repositories...");
-        request = new Request.Builder()
-                .url("https://api.github.com/users/" + username + "/repos")
-                .build();
-        response.close();
-        response = client.newCall(request).execute();
-        String jsonresponse = response.body().string();
-
-        response.close();
-        client.dispatcher().executorService().shutdown();
-        return new JSONArray(jsonresponse);
+        return user;
     }
 
-    /* Returns a sorted queue of Repository objects from a JSONArray
+    /* Uses Github API to return user's git repositories */
+    public static Map<String, GHRepository> grabUserRepos (GHPerson user,
+                                                           View view) throws IOException {
+
+        view.display("Found " + user.getPublicRepoCount() + " repositories");
+        return user.getRepositories();
+    }
+
+    /* Returns a sorted queue of LangCount objects from a JSONArray
     representation */
-    public static Deque<Repository> tabulateLanguages (JSONArray repos) {
+    public static Deque<LangCount> tabulateLanguages (Map<String, GHRepository> repos) {
 
-        List<Repository> repoList = new ArrayList<>();
-        for (int i = 0; i < repos.length(); i++) {
-            JSONObject jo = repos.getJSONObject(i);
-            String language = String.valueOf(jo.get("language"));
-            if (language.equals("null")) {
-                continue;
-            }
+        List<LangCount> repoList = new ArrayList<>();
+        for (Map.Entry<String, GHRepository> repoEntry : repos.entrySet()) {
+            GHRepository ghrepo = repoEntry.getValue();
+            String language = ghrepo.getLanguage();
+            if (language == null) continue;
 
-            Repository repo = new Repository(language);
+            LangCount repo = new LangCount(language);
             if (repoList.contains(repo)) {
                 repo = repoList.get(repoList.indexOf(repo));
                 repo.incrementCount();
