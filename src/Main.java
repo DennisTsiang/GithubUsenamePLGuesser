@@ -2,6 +2,7 @@ import Output.StdOutput;
 import Output.View;
 import org.kohsuke.github.GHPerson;
 import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +20,7 @@ public class Main {
 
         Map<String, GHRepository> repositories;
         boolean repeat = true;
+
         while (repeat) {
             repositories = null;
             do {
@@ -27,7 +29,7 @@ public class Main {
                 String username = input.readLine();
 
                 //Grab user repositories
-                view.display("Searching Github for user");
+
                 GHPerson user = GithubClient.findUser(username, view);
                 if (user != null) {
                     view.display("Found Github user. Grabbing repositories...");

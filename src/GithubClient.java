@@ -1,7 +1,5 @@
 import Output.View;
-import org.kohsuke.github.GHPerson;
-import org.kohsuke.github.GHRepository;
-import org.kohsuke.github.GitHub;
+import org.kohsuke.github.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,12 +9,20 @@ public class GithubClient {
 
     public static GHPerson findUser(String username, View view) throws IOException {
 
-        GitHub github = GitHub.connectAnonymously();
+        GitHub github = new GitHubBuilder().withRateLimitHandler
+                (RateLimitHandler.FAIL).build();
+
+        view.display("Remaining calls left: " + github.rateLimit().remaining);
+
         GHPerson user;
         try {
+            view.display("Searching Github for user");
             user = github.getUser(username);
         } catch (FileNotFoundException e) {
             view.display("Could not find user");
+            return null;
+        } catch (org.kohsuke.github.HttpException e) {
+            view.display(e.getResponseMessage());
             return null;
         }
         return user;
