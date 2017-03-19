@@ -1,5 +1,4 @@
 execdir = File.expand_path(File.dirname(__FILE__))
-puts execdir
 system("cd /")
 system("cd #{execdir}")
 if not File.directory?("out") then

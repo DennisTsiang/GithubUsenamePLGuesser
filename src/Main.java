@@ -5,7 +5,7 @@ import Output.View;
 import org.kohsuke.github.GHPerson;
 import org.kohsuke.github.GHRepository;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.Deque;
 import java.util.Map;
 
@@ -14,7 +14,8 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         View view = new StdOutput();
-        Input input = new StdIn(view);
+        BufferedReader input = new BufferedReader(new InputStreamReader(System
+                .in));
 
         Map<String, GHRepository> repositories = null;
         boolean repeat = true;
@@ -39,7 +40,7 @@ public class Main {
         }
     }
 
-    public static boolean askForRepeat(View view, Input input) {
+    public static boolean askForRepeat(View view, BufferedReader input) throws IOException {
         view.display("Try again? [y/n]");
         String answer = null;
         while (answer == null) {
