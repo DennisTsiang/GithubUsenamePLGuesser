@@ -5,6 +5,7 @@ public class LangCount implements Comparable<LangCount> {
 
     public LangCount(String language) {
         this.language = language;
+        count = 1;
     }
 
     public int getCount() {
