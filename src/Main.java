@@ -1,11 +1,11 @@
-import Input.StdIn;
-import Input.Input;
 import Output.StdOutput;
 import Output.View;
 import org.kohsuke.github.GHPerson;
 import org.kohsuke.github.GHRepository;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Deque;
 import java.util.Map;
 
@@ -17,9 +17,10 @@ public class Main {
         BufferedReader input = new BufferedReader(new InputStreamReader(System
                 .in));
 
-        Map<String, GHRepository> repositories = null;
+        Map<String, GHRepository> repositories;
         boolean repeat = true;
         while (repeat) {
+            repositories = null;
             do {
                 //Ask for username
                 view.display("Please enter a Github username:");
