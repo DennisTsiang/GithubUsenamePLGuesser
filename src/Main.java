@@ -1,8 +1,8 @@
 import Output.StdOutput;
 import Output.View;
+import org.json.JSONException;
 import org.kohsuke.github.GHPerson;
 import org.kohsuke.github.GHRepository;
-import org.kohsuke.github.GitHub;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, JSONException {
 
         View view = new StdOutput();
         BufferedReader input = new BufferedReader(new InputStreamReader(System
@@ -21,15 +21,21 @@ public class Main {
         Map<String, GHRepository> repositories;
         boolean repeat = true;
 
-        while (repeat) {
+        outer: while (repeat) {
             repositories = null;
             do {
                 //Ask for username
                 view.display("Please enter a Github username:");
                 String username = input.readLine();
 
-                //Grab user repositories
+                //Check Github status
+                if (!GithubClient.checkGithubAPIStatus(view)) {
+                    view.display("Stopping search.");
+                    repeat = askForRepeat(view, input);
+                    continue outer;
+                }
 
+                //Grab user repositories
                 GHPerson user = GithubClient.findUser(username, view);
                 if (user != null) {
                     view.display("Found Github user. Grabbing repositories...");

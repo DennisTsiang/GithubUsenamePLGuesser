@@ -1,4 +1,9 @@
 import Output.View;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.kohsuke.github.*;
 
 import java.io.FileNotFoundException;
@@ -58,6 +63,31 @@ public class GithubClient {
         Collections.sort (repoList);
         Collections.reverse(repoList);
         return new ArrayDeque<>(repoList);
+    }
+
+    //check if github is offline
+    public static boolean checkGithubAPIStatus(View view) throws IOException, JSONException {
+
+        view.display("Connecting to Github API");
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://status.github.com/api/status.json")
+                .build();
+        Response response = client.newCall(request).execute();
+        if (!response.isSuccessful()) throw new IOException("Unexpected code"
+                + response);
+
+        JSONObject jsonResponse = new JSONObject(response.body().string());
+        response.close();
+        String status = jsonResponse.getString("status");
+        if (status.equals("minor")) {
+            view.display("Github API has minor problems right now");
+            return false;
+        } else if (status.equals("major")) {
+            view.display("Github API has major problems right now");
+            return false;
+        }
+        return true;
     }
 
 }
