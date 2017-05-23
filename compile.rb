@@ -8,4 +8,4 @@ else
 end
 
 `javac -cp src:lib/* -d out src/Main.java`
-`javac -cp src:lib/* -d out TestRunner/Main.java`
+`javac -cp src:Tests:lib/* -d out Tests/TestRunner.java`
