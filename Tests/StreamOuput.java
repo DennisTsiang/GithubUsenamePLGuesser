@@ -1,9 +1,9 @@
-package Output;
+import Output.View;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class StreamOuput implements View{
+public class StreamOuput implements View {
 
     private ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 

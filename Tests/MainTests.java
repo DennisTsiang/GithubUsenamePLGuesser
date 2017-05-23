@@ -1,5 +1,4 @@
 import Output.StdOutput;
-import Output.StreamOuput;
 import Output.View;
 import org.junit.Test;
 
@@ -40,7 +39,8 @@ public class MainTests {
         Main.printMostUsedLanguage(repos, view);
         assertEquals("Based on the git repositories this user has created " +
                 "I think this user's favourite programming language(s) " +
-                "are:\nJava (1)\n", view.toString());
+                "are:"+System.lineSeparator()+"Java (1)"+System.lineSeparator(), view
+                .toString());
 
     }
 }

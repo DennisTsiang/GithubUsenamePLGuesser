@@ -43,7 +43,7 @@ public class GithubClientTests {
         assertNotEquals(null, user);
         Map<String, GHRepository> repos = GithubClient.grabUserRepos(user,
                 view);
-        assertEquals(3, repos.size());
+        assertEquals(4, repos.size());
         Deque<LangCount> queue = GithubClient.tabulateLanguages(repos);
         LangCount frontRepo = queue.poll();
         assertEquals(2, frontRepo.getCount());
