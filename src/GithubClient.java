@@ -1,3 +1,6 @@
+import Interfaces.GithubService;
+import Interfaces.Person;
+import Interfaces.Repository;
 import Output.View;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -12,14 +15,17 @@ import java.util.*;
 
 public class GithubClient {
 
-    public static GHPerson findUser(String username, View view) throws IOException {
+    private GithubService github;
 
-        GitHub github = new GitHubBuilder().withRateLimitHandler
-                (RateLimitHandler.FAIL).build();
+    public GithubClient(GithubService githubService) {
+        this.github = githubService;
+    }
 
-        view.display("Remaining calls left: " + github.rateLimit().remaining);
+    public Person findUser(String username, View view) throws IOException {
 
-        GHPerson user;
+        view.display("Remaining calls left: " + github.rateLimitRemaining());
+
+        Person user;
         try {
             view.display("Searching Github for user");
             user = github.getUser(username);
@@ -34,7 +40,7 @@ public class GithubClient {
     }
 
     /* Uses Github API to return user's git repositories */
-    public static Map<String, GHRepository> grabUserRepos (GHPerson user,
+    public Map<String, Repository> grabUserRepos (Person user,
                                                            View view) throws IOException {
 
         view.display("Found " + user.getPublicRepoCount() + " repositories");
@@ -43,11 +49,11 @@ public class GithubClient {
 
     /* Returns a sorted queue of LangCount objects from a JSONArray
     representation */
-    public static Deque<LangCount> tabulateLanguages (Map<String, GHRepository> repos) {
+    public Deque<LangCount> tabulateLanguages (Map<String, Repository> repos) {
 
         List<LangCount> repoList = new ArrayList<>();
-        for (Map.Entry<String, GHRepository> repoEntry : repos.entrySet()) {
-            GHRepository ghrepo = repoEntry.getValue();
+        for (Map.Entry<String, Repository> repoEntry : repos.entrySet()) {
+            Repository ghrepo = repoEntry.getValue();
             String language = ghrepo.getLanguage();
             if (language == null) continue;
 
@@ -66,7 +72,7 @@ public class GithubClient {
     }
 
     //check if github is offline
-    public static boolean checkGithubAPIStatus(View view) throws IOException, JSONException {
+    public boolean checkGithubAPIStatus(View view) throws IOException, JSONException {
 
         view.display("Connecting to Github API");
         OkHttpClient client = new OkHttpClient();

@@ -1,5 +1,6 @@
 import Output.StdOutput;
 import Output.View;
+import TestAdapters.StreamOuput;
 import org.junit.Test;
 
 import java.io.*;

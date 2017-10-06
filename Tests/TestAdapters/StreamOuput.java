@@ -1,3 +1,5 @@
+package TestAdapters;
+
 import Output.View;
 
 import java.io.ByteArrayOutputStream;

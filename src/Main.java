@@ -1,7 +1,10 @@
+import Adapters.GithubServiceAdapter;
+import Interfaces.GithubService;
+import Interfaces.Person;
+import Interfaces.Repository;
 import Output.StdOutput;
 import Output.View;
 import org.json.JSONException;
-import org.kohsuke.github.GHPerson;
 import org.kohsuke.github.GHRepository;
 
 import java.io.BufferedReader;
@@ -18,8 +21,10 @@ public class Main {
         BufferedReader input = new BufferedReader(new InputStreamReader(System
                 .in));
 
-        Map<String, GHRepository> repositories;
+        Map<String, Repository> repositories;
         boolean repeat = true;
+        GithubService githubService = new GithubServiceAdapter();
+        GithubClient githubClient = new GithubClient(githubService);
 
         outer: while (repeat) {
             repositories = null;
@@ -29,20 +34,20 @@ public class Main {
                 String username = input.readLine();
 
                 //Check Github status
-                if (!GithubClient.checkGithubAPIStatus(view)) {
+                if (!githubClient.checkGithubAPIStatus(view)) {
                     view.display("Stopping search.");
                     repeat = askForRepeat(view, input);
                     continue outer;
                 }
 
                 //Grab user repositories
-                GHPerson user = GithubClient.findUser(username, view);
+                Person user = githubClient.findUser(username, view);
                 if (user != null) {
                     view.display("Found Github user. Grabbing repositories...");
-                    repositories = GithubClient.grabUserRepos(user, view);
+                    repositories = githubClient.grabUserRepos(user, view);
                 }
             } while (repositories == null);
-            Deque<LangCount> languages = GithubClient.tabulateLanguages
+            Deque<LangCount> languages = githubClient.tabulateLanguages
                     (repositories);
             printMostUsedLanguage(languages, view);
             repeat = askForRepeat(view, input);
