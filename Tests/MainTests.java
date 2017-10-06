@@ -21,7 +21,7 @@ public class MainTests {
     }
 
     @Test
-    public void repeatReturnFalseForY () throws IOException {
+    public void repeatReturnTrueForY () throws IOException {
         byte[] data = "y".getBytes();
         InputStream input = new ByteArrayInputStream(data);
         BufferedReader br = new BufferedReader(new InputStreamReader(input));
